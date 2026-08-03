@@ -1,0 +1,34 @@
+# JavaScript dependencies and build output
+/node_modules/
+/.next/
+/.vinext/
+/dist/
+/out/
+/.wrangler/
+*.tsbuildinfo
+next-env.d.ts
+
+# Local environment and secrets
+.env*
+!.env.example
+*.pem
+
+# Python environments, downloads and generated local artifacts
+/skyeta-ml/.venv/
+/skyeta-ml/data/
+/skyeta-ml/artifacts/
+**/__pycache__/
+*.py[cod]
+
+# Test and tool output
+/coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
