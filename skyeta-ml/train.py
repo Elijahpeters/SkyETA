@@ -1,4 +1,4 @@
-"""Train and export the documented SkyETA portfolio model."""
+"""Train and export the documented SkyETA model."""
 
 from __future__ import annotations
 

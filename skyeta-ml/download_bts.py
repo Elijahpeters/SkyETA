@@ -33,7 +33,7 @@ EXPECTED_SIZES = {
     11: 28_847_755,
     12: 30_337_431,
 }
-USER_AGENT = "SkyETA-portfolio-model/1.0"
+USER_AGENT = "SkyETA-model/1.0"
 
 
 def parse_args() -> argparse.Namespace:

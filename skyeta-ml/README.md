@@ -39,7 +39,7 @@ pre-departure observations.
 - `public/assets/skyeta-model.json`: browser-safe LightGBM tree dump, feature
   metadata, route presets, and held-out metrics.
 - `public/assets/skyeta-model-card.json`: compact provenance and evaluation
-  record used by the portfolio.
+  record used by the application.
 
 Raw downloads and Python artifacts remain ignored so the public repository does
 not carry hundreds of megabytes of source data or unsafe pickle files.

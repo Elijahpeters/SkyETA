@@ -7,7 +7,7 @@ import {
 } from "../app/api/skyeta/live-flights/airlabs.ts";
 
 function request(query) {
-  return new Request(`https://portfolio.test/api/skyeta/live-flights?${query}`);
+  return new Request(`https://skyeta.test/api/skyeta/live-flights?${query}`);
 }
 
 test("live-flight route rejects malformed queries before configuration or fetch", async () => {

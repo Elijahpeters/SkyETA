@@ -28,7 +28,7 @@ from weather_config import (
 )
 
 
-USER_AGENT = "SkyETA-portfolio-research/1.0 (NOAA GHCNh cache)"
+USER_AGENT = "SkyETA-research/1.0 (NOAA GHCNh cache)"
 
 
 def parse_args() -> argparse.Namespace:
