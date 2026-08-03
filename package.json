@@ -10,7 +10,7 @@
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "node scripts/start-skyeta.mjs",
-    "test": "node --test tests/skyeta-model.test.mjs tests/skyeta-live-flights.test.mjs",
+    "test": "node --test tests/skyeta-model.test.mjs tests/skyeta-live-flights.test.mjs tests/skyeta-ui-copy.test.mjs",
     "test:ml": "python -m unittest discover -s skyeta-ml -p \"test_*.py\" -v",
     "check": "npm test && npm run build",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"

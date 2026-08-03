@@ -4,7 +4,7 @@ import "./globals.css";
 
 const title = "SkyETA";
 const description =
-  "A browser-based flight-delay risk instrument built with LightGBM, U.S. BTS records and an optional live AirLabs route board.";
+  "A browser-based flight-delay risk instrument with on-device analysis and an optional live AirLabs route board.";
 
 export const metadata: Metadata = {
   title,

@@ -1081,8 +1081,8 @@ function createFlightReview(
     (prediction.probability - prediction.bestWindow.probability) * 100;
   const schedulePhrase =
     nearbyReduction >= 0.1
-      ? `Model-only schedule sensitivity places ${prediction.bestWindow.label} lowest at ${Math.round(prediction.bestWindow.probability * 100)}%, ${nearbyReduction.toFixed(1)} points below the selected time`
-      : "Model-only schedule sensitivity finds no material difference across the seven nearby times";
+      ? `SkyETA's schedule comparison places ${prediction.bestWindow.label} lowest at ${Math.round(prediction.bestWindow.probability * 100)}%, ${nearbyReduction.toFixed(1)} points below the selected time`
+      : "SkyETA finds no material difference across the seven nearby times";
   const liveContext =
     liveState.status === "ready"
       ? `The separate AirLabs live board has ${liveState.flights.length} current ${liveState.flights.length === 1 ? "row" : "rows"}, fetched ${formatFetchedAt(liveState.fetchedAt)}`
@@ -1308,8 +1308,8 @@ function LiveRouteBoard({
       <div className="skyeta-demo__live-content" aria-live="polite">
         {state.status === "loading" || state.status === "idle" ? (
           <p className="skyeta-demo__live-message is-loading" role="status">
-            Requesting current route schedule and status. Hypothetical model
-            rows are not used here.
+            Requesting current route schedule and status. SkyETA schedule
+            comparisons remain separate below.
           </p>
         ) : null}
 
@@ -1563,7 +1563,7 @@ export default function SkyetaDemo() {
     setFormError("");
 
     if (!model || !selectedPreset) {
-      setFormError("The SkyETA model is not ready yet.");
+      setFormError("SkyETA is not ready yet.");
       return;
     }
 
@@ -1700,14 +1700,14 @@ export default function SkyetaDemo() {
             <span key={`${letter}-${index}`}>{letter}</span>
           ))}
         </h4>
-        <p>Historical U.S. flight-pattern risk estimator</p>
+        <p>Flight-delay risk intelligence</p>
         <span className={`skyeta-demo__model-state is-${modelState}`}>
           <i aria-hidden="true" />
           {modelState === "loading"
-            ? "Loading verified model"
+            ? "Loading SkyETA"
             : modelState === "ready"
-              ? "Model ready"
-              : "Model unavailable"}
+              ? "SkyETA ready"
+              : "SkyETA unavailable"}
         </span>
       </header>
 
@@ -1715,19 +1715,17 @@ export default function SkyetaDemo() {
         <div
           className={`skyeta-demo__signal-node ${modelState === "ready" ? "is-complete" : modelState === "unavailable" ? "is-error" : "is-pending"}`}
         >
-          <span>01 / Model</span>
-          <strong>{modelState === "ready" ? "Loaded" : modelState}</strong>
-          <small>
-            {model ? "LightGBM model" : "Model asset"}
-          </small>
+          <span>01 / SkyETA</span>
+          <strong>{modelState === "ready" ? "Ready" : modelState}</strong>
+          <small>Flight intelligence engine</small>
         </div>
         <i aria-hidden="true" />
         <div
           className={`skyeta-demo__signal-node ${parityState === "passed" ? "is-complete" : parityState === "failed" || parityState === "unavailable" ? "is-error" : "is-pending"}`}
         >
-          <span>02 / Evaluator</span>
-          <strong>{parityState === "passed" ? "Parity passed" : parityState}</strong>
-          <small>Browser fixture check</small>
+          <span>02 / Signal check</span>
+          <strong>{parityState === "passed" ? "Verified" : parityState}</strong>
+          <small>Consistency check</small>
         </div>
         <i aria-hidden="true" />
         <div
@@ -1735,27 +1733,27 @@ export default function SkyetaDemo() {
         >
           <span>03 / Inputs</span>
           <strong>{inputsComplete ? "Complete" : "Incomplete"}</strong>
-          <small>{model ? "Route and schedule features" : "Feature vector"}</small>
+          <small>Route and schedule ready</small>
         </div>
         <i aria-hidden="true" />
         <div
           className={`skyeta-demo__signal-node ${selectedPreset ? "is-complete" : "is-pending"}`}
         >
-          <span>04 / Route history</span>
-          <strong>{selectedPreset ? "Matched" : "--"}</strong>
-          <small>Carrier, airport and route history</small>
+          <span>04 / Route context</span>
+          <strong>{selectedPreset ? "Available" : "--"}</strong>
+          <small>Carrier, airport and route patterns</small>
         </div>
         <i aria-hidden="true" />
         <div
           className={`skyeta-demo__signal-node ${prediction ? "is-complete" : "is-pending"}`}
         >
-          <span>05 / Inference</span>
+          <span>05 / Analysis</span>
           <strong>
             {prediction
               ? `${prediction.inferenceTimeMs.toFixed(prediction.inferenceTimeMs < 1 ? 2 : 1)} ms`
               : "--"}
           </strong>
-          <small>Measured in browser</small>
+          <small>Processed on device</small>
         </div>
         <i aria-hidden="true" />
         <div
@@ -1860,9 +1858,9 @@ export default function SkyetaDemo() {
 
             <button type="submit" disabled={inputsDisabled}>
               {modelState === "loading"
-                ? "Loading Model..."
+                ? "Loading SkyETA..."
                 : modelState === "unavailable"
-                  ? "Model Unavailable"
+                  ? "SkyETA Unavailable"
                   : "Calculate Delay Risk"}
             </button>
 
@@ -1873,8 +1871,8 @@ export default function SkyetaDemo() {
             ) : null}
             {modelState === "unavailable" ? (
               <p className="skyeta-demo__error" role="status">
-                The interactive model is temporarily unavailable. The project case
-                study remains available.
+                SkyETA is temporarily unavailable. The project case study remains
+                available.
               </p>
             ) : null}
           </form>
@@ -1887,7 +1885,7 @@ export default function SkyetaDemo() {
           >
             <div className="skyeta-demo__flight-review-heading">
               <div>
-                <span>Deterministic model-generated summary</span>
+                <span>SkyETA-generated summary</span>
                 <h5 id="skyeta-flight-review-preview-title">
                   SkyETA flight review
                 </h5>
@@ -1899,25 +1897,24 @@ export default function SkyetaDemo() {
             </div>
             <p>
               Select a route and calculate delay risk. This panel will turn the
-              model output into a concise, evidence-backed flight review.
+              selected details into a clear, concise flight review.
             </p>
             <dl className="skyeta-demo__flight-review-evidence">
               <div>
-                <dt>Historical comparison</dt>
-                <dd>Populates after inference</dd>
+                <dt>Pattern comparison</dt>
+                <dd>Appears after calculation</dd>
               </div>
               <div>
-                <dt>Strongest signal</dt>
-                <dd>Calculated from model sensitivity</dd>
+                <dt>Main signal</dt>
+                <dd>Identified by SkyETA</dd>
               </div>
               <div>
-                <dt>Route evidence</dt>
-                <dd>Matched historical lookups</dd>
+                <dt>Route context</dt>
+                <dd>Carrier, airport and route patterns</dd>
               </div>
             </dl>
             <small>
-              Uses the loaded LightGBM model and historical evidence only; no
-              testimonials or invented live data.
+              Prepared by SkyETA from the selected route and schedule.
             </small>
           </aside>
         ) : null}
@@ -2024,7 +2021,7 @@ export default function SkyetaDemo() {
               >
                 <div className="skyeta-demo__flight-review-heading">
                   <div>
-                    <span>Deterministic model-generated summary</span>
+                    <span>SkyETA-generated summary</span>
                     <h5 id="skyeta-flight-review-title">SkyETA flight review</h5>
                   </div>
                   <div className="skyeta-demo__flight-review-score">
@@ -2043,7 +2040,7 @@ export default function SkyetaDemo() {
                     <dd>{flightReview.strongestSignal}</dd>
                   </div>
                   <div>
-                    <dt>Historical evidence</dt>
+                    <dt>Route context</dt>
                     <dd>{flightReview.matchedEvidence}</dd>
                   </div>
                   <div>
@@ -2051,7 +2048,7 @@ export default function SkyetaDemo() {
                     <dd>{flightReview.routePunctuality}</dd>
                   </div>
                   <div>
-                    <dt>Model-only sensitivity</dt>
+                    <dt>Schedule comparison</dt>
                     <dd>{flightReview.scheduleSensitivity}</dd>
                   </div>
                   <div>
@@ -2060,8 +2057,8 @@ export default function SkyetaDemo() {
                   </div>
                 </dl>
                 <small>
-                  Generated deterministically from the loaded model, historical
-                  evidence and the separate live-board state.
+                  Prepared by SkyETA from the selected details, route patterns
+                  and current live-board state.
                 </small>
               </aside>
             ) : null}
@@ -2070,14 +2067,14 @@ export default function SkyetaDemo() {
               <article className="skyeta-demo__insight-card">
                 <div className="skyeta-demo__module-heading">
                   <div>
-                    <span>Model sensitivity</span>
+                    <span>SkyETA analysis</span>
                     <h5>Strongest signals</h5>
                   </div>
                   <i aria-hidden="true">01</i>
                 </div>
                 <p className="skyeta-demo__module-intro">
-                  Each signal compares this estimate with a neutral or nearby
-                  counterfactual inside the same model.
+                  See how the selected schedule and route compare with nearby
+                  patterns considered by SkyETA.
                 </p>
                 <ol className="skyeta-demo__factor-list">
                   {prediction.factors.map((factor, index) => {
@@ -2151,17 +2148,17 @@ export default function SkyetaDemo() {
             <article className="skyeta-demo__window-card">
               <div className="skyeta-demo__window-heading">
                 <div>
-                  <span>Hypothetical model comparison</span>
-                  <h5>Model-only schedule sensitivity</h5>
+                  <span>Schedule explorer</span>
+                  <h5>Nearby time comparison</h5>
                   <p>
-                    Seven hypothetical input times evaluated locally. They are
-                    not real flights, fares, seats, or booking availability.
+                    Seven nearby departure times compared by SkyETA. These are
+                    schedule scenarios, not bookable flights.
                   </p>
                 </div>
                 <div className="skyeta-demo__window-recommendation">
                   <span>
                     {bestWindowReduction >= 0.1
-                      ? "Lowest model estimate"
+                      ? "Lowest SkyETA estimate"
                       : "No material nearby difference"}
                   </span>
                   <strong>
@@ -2218,7 +2215,7 @@ export default function SkyetaDemo() {
             {weatherContext ? (
               <aside className="skyeta-demo__weather-card">
                 <div>
-                  <span>Model weather context</span>
+                  <span>SkyETA weather context</span>
                   <h5>Historical observations included</h5>
                 </div>
                 <p>
@@ -2252,14 +2249,13 @@ export default function SkyetaDemo() {
                 domestic carrier, route and schedule patterns.
               </p>
               <ul>
-                <li>LightGBM model loaded and verified</li>
+                <li>SkyETA ready</li>
                 <li>Source: U.S. BTS records</li>
                 <li>Estimate calculated locally in this browser</li>
               </ul>
               <small>
-                Shown as a continuous model estimate, not a “likely delayed” or
-                “on time” decision. This model estimate is not live flight
-                status or travel advice.
+                This is a delay-risk estimate, not live flight status or travel
+                advice.
               </small>
             </aside>
           </section>

@@ -6,7 +6,7 @@ import styles from "./skyeta.module.css";
 export const metadata: Metadata = {
   title: "SkyETA",
   description:
-    "Explore SkyETA's local flight-delay model and server-backed live route board.",
+    "Explore SkyETA's on-device flight-delay analysis and server-backed live route board.",
 };
 
 export default function SkyetaPage() {
@@ -83,27 +83,27 @@ export default function SkyetaPage() {
       </header>
 
       <section className={styles.intro} aria-labelledby="skyeta-title">
-        <p className={styles.eyebrow}>Flight intelligence / Local ML + live routes</p>
+        <p className={styles.eyebrow}>Flight intelligence / SkyETA + live routes</p>
         <h1 id="skyeta-title">SkyETA</h1>
         <p className={styles.subtitle}>
           Explore flight-delay risk through historical carrier, airport, route
-          and schedule patterns. The model estimate runs privately in your
+          and schedule patterns. SkyETA runs privately in your
           browser; the optional live route board uses current AirLabs data
           through the server.
         </p>
 
         <dl className={styles.systemSummary}>
           <div>
-            <dt>Model</dt>
-            <dd>LightGBM</dd>
+            <dt>Engine</dt>
+            <dd>SkyETA</dd>
           </div>
           <div>
             <dt>Source</dt>
             <dd>U.S. BTS records</dd>
           </div>
           <div>
-            <dt>Estimate</dt>
-            <dd>Local browser</dd>
+            <dt>Analysis</dt>
+            <dd>On device</dd>
           </div>
           <div>
             <dt>Live routes</dt>
