@@ -14,7 +14,7 @@ separate live route board through a server-side AirLabs integration.
 - Leakage-conscious chronological evaluation and browser/Python parity checks.
 - Local TypeScript tree evaluation: flight inputs and model inference stay in
   the browser.
-- Deterministic, evidence-backed flight review and schedule-sensitivity tools.
+- Deterministic route context and schedule-sensitivity tools.
 - A defensive live-flight API that validates queries, limits fields, sanitizes
   responses, caches briefly and never exposes the provider key.
 - Explicit empty, unavailable and unconfigured states—no invented live flights.
@@ -30,7 +30,7 @@ flowchart LR
   MODEL --> EVAL["TypeScript tree evaluator"]
   CARD --> EVAL
   VALIDATE --> EVAL
-  EVAL --> REVIEW["Risk estimate, evidence and flight review"]
+  EVAL --> REVIEW["Risk estimate, route context and schedule tools"]
   INPUT --> API["Server-only live-route API"]
   API --> AIRLABS["AirLabs schedules"]
   AIRLABS --> API

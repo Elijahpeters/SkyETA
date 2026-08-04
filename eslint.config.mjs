@@ -9,7 +9,9 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    "dist/**",
     "out/**",
+    "skyeta-ml/.venv/**",
     "build/**",
     "next-env.d.ts",
   ]),

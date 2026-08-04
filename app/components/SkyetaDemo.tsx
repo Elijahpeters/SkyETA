@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   type FormEvent,
   useEffect,
@@ -992,22 +993,22 @@ function createFactorInsights(
   }> = [
     {
       label: "Route history",
-      comparison: `${preset.origin}-${preset.destination} versus the typical historical pattern`,
+      comparison: `${preset.origin}-${preset.destination} versus the typical SkyETA pattern`,
       changes: { route_delay_rate: globalRate },
     },
     {
       label: "Carrier history",
-      comparison: `${preset.carrier} versus the typical historical pattern`,
+      comparison: `${preset.carrier} versus the typical SkyETA pattern`,
       changes: { carrier_delay_rate: globalRate },
     },
     {
       label: "Origin pattern",
-      comparison: `${preset.origin} versus the typical historical pattern`,
+      comparison: `${preset.origin} versus the typical SkyETA pattern`,
       changes: { origin_delay_rate: globalRate },
     },
     {
       label: "Destination pattern",
-      comparison: `${preset.destination} versus the typical historical pattern`,
+      comparison: `${preset.destination} versus the typical SkyETA pattern`,
       changes: { destination_delay_rate: globalRate },
     },
   ];
@@ -1053,72 +1054,6 @@ function createFactorInsights(
   return insights
     .sort((left, right) => Math.abs(right.delta) - Math.abs(left.delta))
     .slice(0, 3);
-}
-
-function createFlightReview(
-  prediction: Prediction,
-  liveState: LiveFlightsState,
-) {
-  const estimatePercent = Math.round(prediction.probability * 100);
-  const baselineDelta = (prediction.probability - prediction.networkBaseline) * 100;
-  const baselinePhrase =
-    Math.abs(baselineDelta) < 0.05
-      ? "close to the typical historical pattern"
-      : `${baselineDelta > 0 ? "above" : "below"} the typical historical pattern`;
-  const strongest = prediction.factors[0];
-  const strongestPhrase = strongest
-    ? Math.abs(strongest.delta) < 0.0005
-      ? `${strongest.label} is the strongest signal, but remains close to its comparison`
-      : `${strongest.label} is the strongest signal at ${Math.abs(strongest.delta * 100).toFixed(1)} points ${strongest.delta > 0 ? "higher" : "lower"} than its comparison`
-    : "No single signal dominates this estimate";
-  const matchedLookups = 4 - prediction.historicalFallbackCount;
-  const routePunctuality =
-    prediction.reliability.find((metric) => metric.label === "Route")
-      ?.reliability ?? 1 - prediction.networkBaseline;
-  const routePunctualityPercent = Math.round(routePunctuality * 100);
-  const evidencePhrase = `${matchedLookups} of 4 historical lookups matched, with a ${routePunctualityPercent}% smoothed route-punctuality profile`;
-  const nearbyReduction =
-    (prediction.probability - prediction.bestWindow.probability) * 100;
-  const schedulePhrase =
-    nearbyReduction >= 0.1
-      ? `SkyETA's schedule comparison places ${prediction.bestWindow.label} lowest at ${Math.round(prediction.bestWindow.probability * 100)}%, ${nearbyReduction.toFixed(1)} points below the selected time`
-      : "SkyETA finds no material difference across the seven nearby times";
-  const liveContext =
-    liveState.status === "ready"
-      ? `The separate AirLabs live board has ${liveState.flights.length} current ${liveState.flights.length === 1 ? "row" : "rows"}, fetched ${formatFetchedAt(liveState.fetchedAt)}`
-      : liveState.status === "empty"
-        ? `The AirLabs live board returned no current rows in its schedule window, fetched ${formatFetchedAt(liveState.fetchedAt)}`
-        : liveState.status === "loading" || liveState.status === "idle"
-          ? "The separate live route board is still checking current schedule/status data"
-          : liveState.status === "not-configured"
-            ? "The separate live route board is not configured on this deployment"
-            : "The separate live route board is temporarily unavailable";
-  const liveLabel =
-    liveState.status === "ready"
-      ? `${liveState.flights.length} current ${liveState.flights.length === 1 ? "row" : "rows"}`
-      : liveState.status === "empty"
-        ? "No current rows"
-        : liveState.status === "loading" || liveState.status === "idle"
-          ? "Checking current data"
-          : liveState.status === "not-configured"
-            ? "Not configured"
-            : "Unavailable";
-
-  return {
-    summary: `SkyETA estimates ${estimatePercent}% delay risk, ${baselinePhrase}. ${strongestPhrase}; ${evidencePhrase}. ${schedulePhrase}. ${liveContext}.`,
-    baselineComparison:
-      Math.abs(baselineDelta) < 0.05
-        ? "Near typical pattern"
-        : `${baselineDelta > 0 ? "Above" : "Below"} typical pattern`,
-    strongestSignal: strongest?.label ?? "No dominant signal",
-    matchedEvidence: `${matchedLookups}/4 lookups`,
-    routePunctuality: `${routePunctualityPercent}%`,
-    scheduleSensitivity:
-      nearbyReduction >= 0.1
-        ? `${prediction.bestWindow.label} · −${nearbyReduction.toFixed(1)} pts`
-        : "No material difference",
-    liveLabel,
-  };
 }
 
 const LIVE_LOCAL_DATE_FORMATTER = new Intl.DateTimeFormat("en", {
@@ -1387,7 +1322,7 @@ export default function SkyetaDemo() {
     "checking" | "passed" | "failed" | "unavailable"
   >("checking");
   const [presetIndex, setPresetIndex] = useState(0);
-  const [departureDate, setDepartureDate] = useState("");
+  const [departureDate, setDepartureDate] = useState(defaultDepartureDate);
   const [departureTime, setDepartureTime] = useState("09:30");
   const [duration, setDuration] = useState("");
   const [distance, setDistance] = useState("");
@@ -1401,7 +1336,6 @@ export default function SkyetaDemo() {
 
   useEffect(() => {
     const controller = new AbortController();
-    setDepartureDate(defaultDepartureDate());
 
     async function loadModel() {
       try {
@@ -1666,15 +1600,9 @@ export default function SkyetaDemo() {
     prediction && whatIfWindow
       ? (whatIfWindow.probability - prediction.probability) * 100
       : 0;
-  const weatherContext =
-    model?.weather?.status === "included" ? model.weather : null;
-  const flightReview = prediction
-    ? createFlightReview(prediction, liveFlightsState)
-    : null;
-
   return (
     <div
-      className={`skyeta-demo${prediction ? " is-results-active" : " is-review-preview"}`}
+      className={`skyeta-demo${prediction ? " is-results-active" : ""}`}
     >
       <div className="skyeta-demo__network" aria-hidden="true">
         {Array.from({ length: 14 }, (_, index) => (
@@ -1690,10 +1618,13 @@ export default function SkyetaDemo() {
       </div>
 
       <header className="skyeta-demo__header">
-        <img
+        <Image
           className="skyeta-demo__logo"
           src="/assets/skyeta-logo-clean.png"
           alt="SkyETA logo"
+          width={104}
+          height={104}
+          unoptimized
         />
         <h4 aria-label="SkyETA">
           {"SkyETA".split("").map((letter, index) => (
@@ -1878,47 +1809,6 @@ export default function SkyetaDemo() {
           </form>
         </div>
 
-        {!prediction ? (
-          <aside
-            className="skyeta-demo__flight-review skyeta-demo__flight-review--preview"
-            aria-labelledby="skyeta-flight-review-preview-title"
-          >
-            <div className="skyeta-demo__flight-review-heading">
-              <div>
-                <span>SkyETA-generated summary</span>
-                <h5 id="skyeta-flight-review-preview-title">
-                  SkyETA flight review
-                </h5>
-              </div>
-              <div className="skyeta-demo__flight-review-awaiting">
-                <i aria-hidden="true" />
-                <span>Awaiting calculation</span>
-              </div>
-            </div>
-            <p>
-              Select a route and calculate delay risk. This panel will turn the
-              selected details into a clear, concise flight review.
-            </p>
-            <dl className="skyeta-demo__flight-review-evidence">
-              <div>
-                <dt>Pattern comparison</dt>
-                <dd>Appears after calculation</dd>
-              </div>
-              <div>
-                <dt>Main signal</dt>
-                <dd>Identified by SkyETA</dd>
-              </div>
-              <div>
-                <dt>Route context</dt>
-                <dd>Carrier, airport and route patterns</dd>
-              </div>
-            </dl>
-            <small>
-              Prepared by SkyETA from the selected route and schedule.
-            </small>
-          </aside>
-        ) : null}
-
         {prediction ? (
           <section
             className="skyeta-demo__results"
@@ -1937,8 +1827,8 @@ export default function SkyetaDemo() {
                 </span>
                 <p>
                   {networkDelta === 0
-                    ? "This estimate is close to the typical historical pattern."
-                    : `This route and schedule pattern sits ${networkDelta > 0 ? "above" : "below"} the typical historical pattern.`}
+                    ? "This estimate is close to the typical SkyETA pattern."
+                    : `This route and schedule pattern sits ${networkDelta > 0 ? "above" : "below"} the typical SkyETA pattern.`}
                 </p>
               </div>
 
@@ -1961,7 +1851,7 @@ export default function SkyetaDemo() {
                     <span>{prediction.departure}</span>
                   </p>
                   <p>
-                    <strong>Historical comparison:</strong>
+                    <strong>Pattern comparison:</strong>
                     <span className={`skyeta-demo__baseline is-${networkComparison.tone}`}>
                       {networkComparison.label}
                     </span>
@@ -2000,7 +1890,7 @@ export default function SkyetaDemo() {
                   </div>
                   <div className="skyeta-demo__gauge-scale" aria-hidden="true">
                     <span>0</span>
-                    <span>Typical historical pattern</span>
+                    <span>Typical SkyETA pattern</span>
                     <span>100</span>
                   </div>
                 </div>
@@ -2013,55 +1903,6 @@ export default function SkyetaDemo() {
                 </span>
               </div>
             </article>
-
-            {flightReview ? (
-              <aside
-                className="skyeta-demo__flight-review"
-                aria-labelledby="skyeta-flight-review-title"
-              >
-                <div className="skyeta-demo__flight-review-heading">
-                  <div>
-                    <span>SkyETA-generated summary</span>
-                    <h5 id="skyeta-flight-review-title">SkyETA flight review</h5>
-                  </div>
-                  <div className="skyeta-demo__flight-review-score">
-                    <strong>{probabilityPercent}%</strong>
-                    <span>Delay-risk estimate</span>
-                  </div>
-                </div>
-                <p>{flightReview.summary}</p>
-                <dl className="skyeta-demo__flight-review-evidence">
-                  <div>
-                    <dt>Historical pattern</dt>
-                    <dd>{flightReview.baselineComparison}</dd>
-                  </div>
-                  <div>
-                    <dt>Strongest signal</dt>
-                    <dd>{flightReview.strongestSignal}</dd>
-                  </div>
-                  <div>
-                    <dt>Route context</dt>
-                    <dd>{flightReview.matchedEvidence}</dd>
-                  </div>
-                  <div>
-                    <dt>Route punctuality</dt>
-                    <dd>{flightReview.routePunctuality}</dd>
-                  </div>
-                  <div>
-                    <dt>Schedule comparison</dt>
-                    <dd>{flightReview.scheduleSensitivity}</dd>
-                  </div>
-                  <div>
-                    <dt>Live board</dt>
-                    <dd>{flightReview.liveLabel}</dd>
-                  </div>
-                </dl>
-                <small>
-                  Prepared by SkyETA from the selected details, route patterns
-                  and current live-board state.
-                </small>
-              </aside>
-            ) : null}
 
             <div className="skyeta-demo__intelligence-grid">
               <article className="skyeta-demo__insight-card">
@@ -2110,14 +1951,13 @@ export default function SkyetaDemo() {
               <article className="skyeta-demo__reliability-card">
                 <div className="skyeta-demo__module-heading">
                   <div>
-                    <span>Historical profile</span>
-                    <h5>Historical punctuality</h5>
+                    <span>Route profile</span>
+                    <h5>Route punctuality</h5>
                   </div>
                   <i aria-hidden="true">02</i>
                 </div>
                 <p className="skyeta-demo__module-intro">
-                  Smoothed historical estimate of flights without an arrival delay
-                  of 15 minutes or more.
+                  SkyETA’s punctuality profile for the selected flight context.
                 </p>
                 <div className="skyeta-demo__reliability-list">
                   {prediction.reliability.map((metric) => {
@@ -2212,52 +2052,9 @@ export default function SkyetaDemo() {
               </div>
             </article>
 
-            {weatherContext ? (
-              <aside className="skyeta-demo__weather-card">
-                <div>
-                  <span>SkyETA weather context</span>
-                  <h5>Historical observations included</h5>
-                </div>
-                <p>
-                  Source: {weatherContext.source}. Features are limited to data
-                  available {weatherContext.cutoffHours} hours before scheduled
-                  departure; this is not live weather.
-                </p>
-                {weatherContext.coverage ? (
-                  <small>
-                    January coverage: {weatherContext.coverage.airportCount} airports,
-                    at least one endpoint for{" "}
-                    {Math.round(
-                      weatherContext.coverage
-                        .januaryAtLeastOneEndpointFlightShare * 100,
-                    )}
-                    % of flights and both endpoints for{" "}
-                    {Math.round(
-                      weatherContext.coverage.januaryBothEndpointsFlightShare *
-                        100,
-                    )}
-                    %.
-                  </small>
-                ) : null}
-              </aside>
-            ) : null}
-
-            <aside className="skyeta-demo__context-card">
-              <h5>About this estimate</h5>
-              <p>
-                SkyETA calculated this probability locally from historical U.S.
-                domestic carrier, route and schedule patterns.
-              </p>
-              <ul>
-                <li>SkyETA ready</li>
-                <li>Source: U.S. BTS records</li>
-                <li>Estimate calculated locally in this browser</li>
-              </ul>
-              <small>
-                This is a delay-risk estimate, not live flight status or travel
-                advice.
-              </small>
-            </aside>
+            <p className="skyeta-demo__method-note">
+              SkyETA provides an estimate, not live flight status or travel advice.
+            </p>
           </section>
         ) : null}
       </div>

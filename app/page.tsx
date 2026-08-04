@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 import SkyetaDemo from "./components/SkyetaDemo";
 import styles from "./skyeta.module.css";
@@ -73,7 +74,13 @@ export default function SkyetaPage() {
         </a>
 
         <div className={styles.productMark} aria-label="SkyETA">
-          <img src="/assets/skyeta-logo-clean.png" alt="" />
+          <Image
+            src="/assets/skyeta-logo-clean.png"
+            alt=""
+            width={34}
+            height={34}
+            unoptimized
+          />
           <span>SkyETA</span>
         </div>
 
