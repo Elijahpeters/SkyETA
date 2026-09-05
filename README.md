@@ -1,5 +1,7 @@
 # SkyETA
 
+[![SkyETA CI](https://github.com/Elijahpeters/SkyETA/actions/workflows/ci.yml/badge.svg)](https://github.com/Elijahpeters/SkyETA/actions/workflows/ci.yml)
+
 SkyETA is a browser-based flight-delay risk instrument by Peters Elijah
 Temidayo. It evaluates a real exported LightGBM model locally in the visitor's
 browser, explains the strongest route and schedule signals, and can add a
