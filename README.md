@@ -71,12 +71,25 @@ The default production port is `4177`; override it with `PORT` in
 ## Verify the application
 
 ```bash
-npm test
-npm run build
+npm run check
 ```
 
-The JavaScript tests verify exported-model parity and the live API's validation,
-sanitization, timeout, cache and no-key behavior.
+This runs the JavaScript tests, lint and production build. The JavaScript tests
+verify exported-model parity and the live API's validation, sanitization,
+timeout, cache and no-key behavior. They do not need an AirLabs API key.
+
+To run the Python model-pipeline tests, create and activate the project virtual
+environment using the [model setup instructions](skyeta-ml/README.md#reproduce-the-model),
+then install the pinned dependencies and run the existing test script:
+
+```bash
+python -m pip install -r skyeta-ml/requirements.txt
+npm run test:ml
+```
+
+These tests use local fixtures and do not download the BTS source archives. The
+full model-training workflow and its larger data downloads are documented in
+[`skyeta-ml/README.md`](skyeta-ml/README.md).
 
 ## Reproduce the model
 
