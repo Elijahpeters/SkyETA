@@ -37,3 +37,23 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  model-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: skyeta-ml/requirements.txt
+
+      - name: Install model test dependencies
+        run: python -m pip install -r skyeta-ml/requirements.txt
+
+      - name: Test Python model pipeline
+        run: python -m unittest discover -s skyeta-ml -p "test_*.py" -v
